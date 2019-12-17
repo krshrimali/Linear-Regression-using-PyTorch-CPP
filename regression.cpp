@@ -20,9 +20,9 @@ std::vector<float> linspace(int start, int end, int length) {
 // (x - min)/(max - min)
 std::vector<float> normalize_feature(std::vector<float> feat) {
 	std::cout << feat.size() << std::endl;
-	int max_element = *std::max_element(feat.begin(), feat.end());
-	int min_element = *std::min_element(feat.begin(), feat.end());
-
+    float max_element = *std::max_element(feat.begin(), feat.end());
+	float min_element = *std::min_element(feat.begin(), feat.end());
+    
 	for (int i = 0; i < feat.size(); i++) {
 		feat[i] = (feat[i] - min_element) / (max_element - min_element);
 	}
@@ -109,15 +109,17 @@ struct Net : torch::nn::Module {
 	Usage: auto net = std::make_shared<Net>(1, 1) [Note: Since in_dim = 1, and out_dim = 1]
 	*/
 	Net(int in_dim, int out_dim) {
-		fc1 = register_module("fc1", torch::nn::Linear(in_dim, out_dim));
-	}
+		fc1 = register_module("fc1", torch::nn::Linear(in_dim, 100));
+	    fc2 = register_module("fc2", torch::nn::Linear(100, out_dim));
+    }
 
 	torch::Tensor forward(torch::Tensor x) {
-		x = torch::relu(fc1->forward(x));
+		x = fc1->forward(x);
+        x = fc2->forward(x);
 		return x;
 	}
 
-	torch::nn::Linear fc1{ nullptr };
+	torch::nn::Linear fc1{ nullptr }, fc2{ nullptr };
 };
 
 int main() {
@@ -128,7 +130,7 @@ int main() {
 	// std::vector<float> outputs = pair_input_output.second;
 
 	// Load CSV data
-	std::ifstream file("C:\\Users\\hp\\source\\repos\\Linear-Regression\\BostonHousing.csv");
+	std::ifstream file("/Users/krshrimali/Documents/krshrimali-blogs/bhaiya/LR/BostonHousing.csv");
 	CSVRow	row;
 	
 	std::vector<float> crim, zn, indus, chas, nox, rm, age, dis, rad, tax, ptratio, B, lstat, medv;
@@ -136,6 +138,7 @@ int main() {
 	int count = 0;
 	while (file >> row) {
 		if (count++ == 0) continue;
+        std::cout << row[0] << ", " << row[1] << ", " << row[2] << ", " << ", " << row[4] << std::endl;
 		/*
 		for (int i = 0; i <= 13; i++) {
 			std::cout << row[i] << ", ";
@@ -158,24 +161,8 @@ int main() {
 		lstat.push_back(row[12]);
 		medv.push_back(row[13]);
 
-		/* 
-		crim.push_back(std::stof(row[0]));
-		zn.push_back(std::stof(row[1]));
-		indus.push_back(std::stof(row[2]));
-		chas.push_back(std::stof(row[3]));
-		nox.push_back(std::stof(row[4]));
-		rm.push_back(std::stof(row[5]));
-		age.push_back(std::stof(row[6]));
-		dis.push_back(std::stof(row[7]));
-		rad.push_back(std::stof(row[8]));
-		tax.push_back(std::stof(row[9]));
-		ptratio.push_back(std::stof(row[10]));
-		B.push_back(std::stof(row[11]));
-		lstat.push_back(std::stof(row[12]));
-		medv.push_back(std::stof(row[13]));
-		*/
 	}
-
+    
 	crim = normalize_feature(crim);
 	zn = normalize_feature(zn);
 	indus = normalize_feature(indus);
@@ -188,7 +175,9 @@ int main() {
 	ptratio = normalize_feature(ptratio);
 	B = normalize_feature(B);
 	lstat = normalize_feature(lstat);
-	// medv = normalize_feature(medv);
+    
+
+    // medv = normalize_feature(medv);
 
 	// std::cout << crim.size() << std::endl;
 	std::vector<float> inputs = crim;
@@ -235,9 +224,8 @@ int main() {
 	auto net = std::make_shared<Net>(12, 1);
 	torch::optim::SGD optimizer(net->parameters(), 0.001);
 
-	for (size_t epoch = 1; epoch <= 1; epoch++) {
+	for (size_t epoch = 1; epoch <= 1000; epoch++) {
 		auto out = net->forward(input_tensors);
-		std::cout << "out: " << out << std::endl;
 		optimizer.zero_grad();
 
 		// auto loss = torch::smooth_l1_loss(out, output_tensors);
