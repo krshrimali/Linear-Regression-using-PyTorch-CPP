@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 
+// Credits: https://stackoverflow.com/a/1120224
 class CSVRow
 {
 public:
