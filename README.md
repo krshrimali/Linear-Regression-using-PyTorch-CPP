@@ -1,2 +1,9 @@
 # Linear-Regression-Libtorch
 Libtorch LR
+
+## Files
+
+1. `main.cpp` - Sample main file to load sample generated data using a numpy-like functions (linspace and random) and perform Linear Regression. 
+2. `regression.cpp` - Sample main file to load Boston Housing Data and performing Linear Regression.
+3. `Header.h` - Used for `regression.cpp`, has `CSVRow` class to load CSV Files. Credits and Reference: https://stackoverflow.com/a/1120224 (Martin York, Link: https://stackoverflow.com/users/14065/martin-york)
+
