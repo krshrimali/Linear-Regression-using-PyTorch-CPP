@@ -204,16 +204,10 @@ int main() {
 		std::cout << "Outputs: " << i << ", : " << outputs[i] << std::endl;
 	}
 
-	// x.reshape(-1, 1)
-	// y.reshape(-1, 1)
-
 	// Convert array to a tensor
 	// Each should be float32?
 	// Reference: https://discuss.pytorch.org/t/passing-stl-container-to-torch-tensors/36614/2
 
-	std::cout << "INPUT SIZE: " << inputs.size() << std::endl;
-	std::cout << "OUTPUT SIZE: " << outputs.size() << std::endl;
-	
 	auto output_tensors = torch::from_blob(outputs.data(), { 506, 1 });
 	auto input_tensors = torch::from_blob(inputs.data(), { 506, 12 });
 	
