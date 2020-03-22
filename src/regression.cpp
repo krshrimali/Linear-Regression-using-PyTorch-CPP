@@ -5,6 +5,7 @@
 #include <cassert>
 #include <torch/torch.h>
 #include "csvloader.h"
+#include <filesystem>
 
 std::vector<float> linspace(int start, int end, int length) {
 	std::vector<float> vec;
@@ -129,7 +130,7 @@ int main() {
 
 	// Load CSV data
 	// TODO: Add an assert here
-	std::ifstream file("extras/BostonHousing.csv");
+	std::ifstream file("BostonHousing.csv");
 	CSVRow	row;
 	
 	std::vector<float> crim, zn, indus, chas, nox, rm, age, dis, rad, tax, ptratio, B, lstat, medv;
