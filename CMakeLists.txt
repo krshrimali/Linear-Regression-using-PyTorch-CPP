@@ -1,6 +1,6 @@
- cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.0)
 
- project(lr-example)
+project(lr-example)
 
 find_package(Torch REQUIRED)
 find_package(OpenCV 4.1.0 REQUIRED)
