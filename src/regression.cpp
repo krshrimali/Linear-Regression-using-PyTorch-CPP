@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cassert>
 #include <torch/torch.h>
-#include "include/csvloader.h"
+#include "csvloader.h"
 
 std::vector<float> linspace(int start, int end, int length) {
 	std::vector<float> vec;
