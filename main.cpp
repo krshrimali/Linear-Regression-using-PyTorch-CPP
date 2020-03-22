@@ -1,11 +1,11 @@
-// #include <torch/torch.h>
-#include <functional> // for placeholders 
+#include <functional> // for placeholders
 #include <vector>
 #include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <torch/torch.h>
 
+/* TODO: this needs to go in header file */
 std::vector<float> linspace(int start, int end, int length) {
     std::vector<float> vec;
     float diff = (end - start) / float(length);
@@ -15,6 +15,7 @@ std::vector<float> linspace(int start, int end, int length) {
     return vec;
 }
 
+/* TODO: this needs to go in header file */
 std::vector<float> random(int length, int multiplier) {
     /*
      * This function returns random numbers of length: length, and multiplies each by multiplier
@@ -28,6 +29,7 @@ std::vector<float> random(int length, int multiplier) {
     return vec;
 }
 
+/* TODO: this needs to go in header file */
 std::vector<float> add_two_vectors(std::vector<float> a_vector, std::vector<float> b_vector) {
     /*
      * This function adds two vectors and returns the sum vector
@@ -44,6 +46,7 @@ std::vector<float> add_two_vectors(std::vector<float> a_vector, std::vector<floa
     return c_vector;
 }
 
+/* TODO: this needs to go in header file */
 std::pair<std::vector<float>, std::vector<float>> create_data() {
     // This creates a data for Linear Regression
     int64_t m = 4; // Slope
@@ -77,6 +80,7 @@ std::pair<std::vector<float>, std::vector<float>> create_data() {
     return input_output;
 }
 
+/* TODO: this needs to go in header file */
 // Linear Regression Model
 struct Net : torch::nn::Module {
     /*
@@ -95,6 +99,7 @@ struct Net : torch::nn::Module {
     torch::nn::Linear fc1{ nullptr };
 };
 
+/* TODO: This stays */
 int main() {
     // std::vector<float> inputs, std::vector<float> outputs = create_data();
     std::pair<std::vector<float>, std::vector<float>> pair_input_output = create_data();
