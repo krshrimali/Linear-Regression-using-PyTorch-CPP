@@ -130,7 +130,7 @@ int main() {
 
 	// Load CSV data
 	// TODO: Add an assert here
-	std::ifstream file("BostonHousing.csv");
+	std::ifstream file("extras/BostonHousing.csv");
 	CSVRow	row;
 	
 	std::vector<float> crim, zn, indus, chas, nox, rm, age, dis, rad, tax, ptratio, B, lstat, medv;
