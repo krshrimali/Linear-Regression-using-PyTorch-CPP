@@ -1,5 +1,6 @@
 # Linear-Regression-Libtorch
-Libtorch LR
+
+Implementing Linear Regression on a CSV file using PyTorch C++ Frontend API
 
 ## Files
 
