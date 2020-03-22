@@ -1,12 +1,11 @@
-// #include <torch/torch.h>
 #include <functional> // for placeholders 
 #include <vector>
 #include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <torch/torch.h>
-#include "Header.h"
-// #include <bits/stdc++.h>
+#include "csvloader.h"
+#include <filesystem>
 
 std::vector<float> linspace(int start, int end, int length) {
 	std::vector<float> vec;
@@ -130,7 +129,8 @@ int main() {
 	// std::vector<float> outputs = pair_input_output.second;
 
 	// Load CSV data
-	std::ifstream file("/Users/krshrimali/Documents/krshrimali-blogs/bhaiya/LR/BostonHousing.csv");
+	// TODO: Add an assert here
+	std::ifstream file("extras/BostonHousing.csv");
 	CSVRow	row;
 	
 	std::vector<float> crim, zn, indus, chas, nox, rm, age, dis, rad, tax, ptratio, B, lstat, medv;
