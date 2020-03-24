@@ -2,7 +2,7 @@
 
 Implementing Linear Regression on a CSV file using PyTorch C++ Frontend API.
 
-This repository is public but not ready to use. It will be ready to use when <a href="https://github.com/BuffetCodes/Linear-Regression-using-PyTorch-CPP/pull/4">this</a> is merged.
+**This repository is public but not ready to use. It will be ready to use when <a href="https://github.com/BuffetCodes/Linear-Regression-using-PyTorch-CPP/pull/4">this</a> is merged.**
 
 ## Files
 
