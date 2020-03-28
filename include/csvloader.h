@@ -14,7 +14,7 @@ public:
 	float operator[](std::size_t index)
 	{
 		std::string& eg = m_data[index];
-		return std::stof(eg);
+		return std::atof(eg.c_str());
 	}
 	std::size_t size() const
 	{
