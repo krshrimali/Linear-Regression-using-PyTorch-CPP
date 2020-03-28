@@ -5,7 +5,7 @@
 #include <cassert>
 #include <torch/torch.h>
 #include "csvloader.h"
-#include <filesystem>
+#include <fstream>
 
 std::vector<float> linspace(int start, int end, int length) {
 	std::vector<float> vec;
@@ -23,7 +23,8 @@ std::vector<float> normalize_feature(std::vector<float> feat) {
 	float min_element = *std::min_element(feat.begin(), feat.end());
     
 	for (int i = 0; i < feat.size(); i++) {
-		feat[i] = (feat[i] - min_element) / (max_element - min_element);
+        // max_element - min_element + 1 to avoid divide by zero error
+		feat[i] = (feat[i] - min_element) / (max_element - min_element + 1);
 	}
 
 	return feat;
@@ -121,6 +122,43 @@ struct Net : torch::nn::Module {
 	torch::nn::Linear fc1{ nullptr }, fc2{ nullptr };
 };
 
+// TODO: Should I use template here?
+std::pair<std::vector<float>, std::vector<float>> process_data(std::ifstream&file, CSVRow& row) {
+    std::vector<std::vector<float>> features;
+	std::vector<float> label;
+    int count = 0;
+    
+	while (file >> row) {
+        if (count == 0) continue;
+		for (int i = 0; i < row.size()-1; i++) {
+			std::vector<float> sample;
+			sample.push_back(row[i]);
+			std::cout << count;
+			if(count == 1) {
+				std::vector<float> sample;
+				sample.push_back(row[i]);
+				features.push_back(sample);
+			}
+			else {
+				features[i].push_back(row[i]);
+			}
+		}
+		label.push_back(row[row.size()-1]);
+		count+= 1;
+	}
+
+	for (int i = 0; features.size(); i++) {
+		normalize_feature(features[i]);
+	}
+
+	std::vector<float> inputs = features[0];
+	for (int i = 1; i < features.size(); i++) {
+		inputs.insert(inputs.end(), features[i].begin(), features[i].end());
+	}
+
+	return std::make_pair(inputs, label);
+}
+
 int main() {
 	// Uncomment three lines below if you want to load a sample random data
 	// std::vector<float> inputs, std::vector<float> outputs = create_data();
@@ -129,76 +167,14 @@ int main() {
 	// std::vector<float> outputs = pair_input_output.second;
 
 	// Load CSV data
-	// TODO: Add an assert here
-	std::ifstream file("extras/BostonHousing.csv");
-	CSVRow	row;
-	
-	std::vector<float> crim, zn, indus, chas, nox, rm, age, dis, rad, tax, ptratio, B, lstat, medv;
+	std::ifstream file;
+    CSVRow row;
+    file.open("../extras/BostonHousing.csv", std::ios_base::in);
 
-	int count = 0;
-	while (file >> row) {
-		if (count++ == 0) continue;
-        std::cout << row[0] << ", " << row[1] << ", " << row[2] << ", " << ", " << row[4] << std::endl;
-		/*
-		for (int i = 0; i <= 13; i++) {
-			std::cout << row[i] << ", ";
-			std::cout << stof(row[i]) << ", ";
-		}
-		*/
-		// std::cout << ", " << row[0] << std::endl;
-		crim.push_back(row[0]);
-		zn.push_back(row[1]);
-		indus.push_back(row[2]);
-		// chas.push_back(row[3]);
-		nox.push_back(row[4]);
-		rm.push_back(row[5]);
-		age.push_back(row[6]);
-		dis.push_back(row[7]);
-		rad.push_back(row[8]);
-		tax.push_back(row[9]);
-		ptratio.push_back(row[10]);
-		B.push_back(row[11]);
-		lstat.push_back(row[12]);
-		medv.push_back(row[13]);
+	std::pair<std::vector<float>, std::vector<float>> out = process_data(file, row);
+	std::vector<float> inputs = out.first;
+	std::vector<float> outputs = out.second;
 
-	}
-    
-	crim = normalize_feature(crim);
-	zn = normalize_feature(zn);
-	indus = normalize_feature(indus);
-	nox = normalize_feature(nox);
-	rm = normalize_feature(rm);
-	age = normalize_feature(age);
-	dis = normalize_feature(dis);
-	rad = normalize_feature(rad);
-	tax = normalize_feature(tax);
-	ptratio = normalize_feature(ptratio);
-	B = normalize_feature(B);
-	lstat = normalize_feature(lstat);
-    
-
-    // medv = normalize_feature(medv);
-
-	// std::cout << crim.size() << std::endl;
-	std::vector<float> inputs = crim;
-	inputs.reserve(crim.size() + zn.size() + indus.size() + nox.size() + rm.size() + age.size() + \
-		dis.size() + rad.size() + tax.size() + ptratio.size() + B.size() + lstat.size());
-	// inputs.insert(inputs.end(), crim.begin(), crim.end());
-	inputs.insert(inputs.end(), zn.begin(), zn.end());
-	inputs.insert(inputs.end(), indus.begin(), indus.end());
-	// inputs.insert(inputs.end(), chas.begin(), chas.end());
-	inputs.insert(inputs.end(), nox.begin(), nox.end());
-	inputs.insert(inputs.end(), rm.begin(), rm.end());
-	inputs.insert(inputs.end(), age.begin(), age.end());
-	inputs.insert(inputs.end(), dis.begin(), dis.end());
-	inputs.insert(inputs.end(), rad.begin(), rad.end());
-	inputs.insert(inputs.end(), tax.begin(), tax.end());
-	inputs.insert(inputs.end(), ptratio.begin(), ptratio.end());
-	inputs.insert(inputs.end(), B.begin(), B.end());
-	inputs.insert(inputs.end(), lstat.begin(), lstat.end());
-
-	std::vector<float> outputs = medv;
-	
 	// Phase 1 : Data created
 	for (size_t i = 0; i < outputs.size(); i++) {
 		std::cout << "Outputs: " << i << ", : " << outputs[i] << std::endl;
@@ -207,20 +183,22 @@ int main() {
 	// Convert array to a tensor
 	// Each should be float32?
 	// Reference: https://discuss.pytorch.org/t/passing-stl-container-to-torch-tensors/36614/2
-
-	auto output_tensors = torch::from_blob(outputs.data(), { 506, 1 });
-	auto input_tensors = torch::from_blob(inputs.data(), { 506, 12 });
-	
-	std::cout << input_tensors.sizes() << std::endl;
-	std::cout << output_tensors.sizes() << std::endl;
+    
+    // These fields should not be hardcoded (506, 1, 13)
+	auto output_tensors = torch::from_blob(outputs.data(), outputs.size());
+	auto input_tensors = torch::from_blob(inputs.data(), inputs.size());
+	// auto output_tensors = torch::from_blob(outputs.data(), { 506, 1 });
+	// auto input_tensors = torch::from_blob(inputs.data(), { 506, 13 });
 
 	// Phase 2 : Create Network
-	auto net = std::make_shared<Net>(12, 1);
+	auto net = std::make_shared<Net>(input_tensors.size(1), output_tensors.size(1));
 	torch::optim::SGD optimizer(net->parameters(), 0.001);
 
-	for (size_t epoch = 1; epoch <= 1000; epoch++) {
+	int n_epochs = 100;
+	for (size_t epoch = 1; epoch <= n_epochs; epoch++) {
 		auto out = net->forward(input_tensors);
-		optimizer.zero_grad();
+        
+        optimizer.zero_grad();
 
 		// auto loss = torch::smooth_l1_loss(out, output_tensors);
 		auto loss = torch::mse_loss(out, output_tensors);
