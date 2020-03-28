@@ -8,26 +8,26 @@
 int main(int argc, char** argv) {
 	// Load CSV data
 	std::ifstream file;
-    CSVRow row;
+	CSVRow row;
 	std::string path = argc > 1 ? argv[1] : "../extras/BostonHousing.csv";
-    file.open(path, std::ios_base::in);
-    // Exit if file not opened successfully
+	file.open(path, std::ios_base::in);
+	// Exit if file not opened successfully
 	if (!file.is_open()) {
 		std::cout << "File not read successfully" << std::endl;
 		std::cout << "Path given: " << path << std::endl;
-        return -1;
+		return -1;
 	}
-    // Process Data, load features and labels for LR
+	// Process Data, load features and labels for LR
 	std::pair<std::vector<float>, std::vector<float>> out = process_data(file, row);
 	std::vector<float> inputs = out.first;
 	std::vector<float> outputs = out.second;
-    
+	
 	// Phase 1 : Data created
 	
-    // Convert vectors to a tensor
+	// Convert vectors to a tensor
 	// Reference: https://discuss.pytorch.org/t/passing-stl-container-to-torch-tensors/36614/2
-    
-    // These fields should not be hardcoded (506, 1, 13)
+	
+	// These fields should not be hardcoded (506, 1, 13)
 	auto output_tensors = torch::from_blob(outputs.data(), {int(outputs.size()), 1});
 	auto input_tensors = torch::from_blob(inputs.data(), {int(outputs.size()), int(inputs.size()/outputs.size())});
 
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 	int n_epochs = 100;
 	for (size_t epoch = 1; epoch <= n_epochs; epoch++) {
 		auto out = net->forward(input_tensors);
-        optimizer.zero_grad();
+		optimizer.zero_grad();
 
 		auto loss = torch::mse_loss(out, output_tensors);
 		float loss_val = loss.item<float>();
