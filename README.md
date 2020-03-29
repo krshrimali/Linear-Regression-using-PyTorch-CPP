@@ -4,6 +4,8 @@ Implementing Linear Regression on a CSV file using PyTorch C++ Frontend API.
 
 **Release:** v0.1 (See <a href="https://github.com/BuffetCodes/Linear-Regression-using-PyTorch-CPP/milestones">Milestone v0.1</a> for more details).
 
+Do check out the video <a href="https://www.youtube.com/watch?v=6raFznPFy2Y">here</a> for Code Review and Demo Run!
+
 ## Usage
 
 Follow these steps to implement LR on your CSV file:
