@@ -90,9 +90,6 @@ std::vector<float> normalize_feature(std::vector<float> feat) {
 		}
 	}
 
-	max_element = *std::max_element(feat.begin(), feat.end());
-	min_element = *std::min_element(feat.begin(), feat.end());
-
 	return feat;
 }
 
