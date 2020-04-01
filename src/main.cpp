@@ -24,9 +24,10 @@ struct Net : torch::nn::Module {
 /* TODO: This stays */
 int main() {
     // std::vector<float> inputs, std::vector<float> outputs = create_data();
-    std::pair<std::vector<float>, std::vector<float>> pair_input_output = create_data<float>();
-    std::vector<float> inputs = pair_input_output.first;
-    std::vector<float> outputs = pair_input_output.second;
+    //std::pair<std::vector<float>, std::vector<float>> pair_input_output = create_data<float>();
+    std::vector<float> inputs; // = pair_input_output.first;
+    std::vector<float> outputs; // = pair_input_output.second;
+    std::tie(inputs, outputs) = create_data<float>();
 
     // Phase 1 : Data created
     for (size_t i = 0; i < outputs.size(); i++) {
