@@ -8,7 +8,6 @@
 int main(int argc, char** argv) {
 	// Load CSV data
 	std::ifstream file;
-	CSVRow row;
 	std::string path = argc > 1 ? argv[1] : "../extras/BostonHousing.csv";
 	file.open(path, std::ios_base::in);
 	// Exit if file not opened successfully
@@ -18,7 +17,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 	// Process Data, load features and labels for LR
-	std::pair<std::vector<float>, std::vector<float>> out = process_data(file, row);
+	std::pair<std::vector<float>, std::vector<float>> out = process_data(file);
 	std::vector<float> inputs = out.first;
 	std::vector<float> outputs = out.second;
 	
@@ -36,8 +35,8 @@ int main(int argc, char** argv) {
 	torch::optim::SGD optimizer(net->parameters(), 0.001);
 
 	// Phase 3 : Train and Print Loss
-	int n_epochs = 100;
-	for (size_t epoch = 1; epoch <= n_epochs; epoch++) {
+	std::size_t n_epochs = 100;
+	for (std::size_t epoch = 1; epoch <= n_epochs; epoch++) {
 		auto out = net->forward(input_tensors);
 		optimizer.zero_grad();
 

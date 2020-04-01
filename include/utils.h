@@ -29,15 +29,14 @@ std::vector<T> random(int length, int multiplier) {
 
 // This function adds two vectors and returns the sum vector
 template<typename T>
-std::vector<T> add_two_vectors(std::vector<T> a_vector, std::vector<T> b_vector) {
+std::vector<T> add_two_vectors(std::vector<T> const& a_vector, std::vector<T> const& b_vector) {
 	// assert both are of same size
 	assert(a_vector.size() == b_vector.size());
 
 	std::vector<T> c_vector;
-
-	for (size_t i = 0; i < a_vector.size(); i++) {
-		c_vector.push_back(a_vector[i] + b_vector[i]);
-	}
+	std::transform(std::begin(a_vector), std::end(a_vector), std::begin(b_vector),
+					std::back_inserter(c_vector),
+					[](T const& a, T const& b){return a+b;});
 
 	return c_vector;
 }
@@ -59,12 +58,12 @@ std::pair<std::vector<T>, std::vector<T>> create_data() {
 
 	// Source: https://stackoverflow.com/a/3885136
 	// This multiplies the vector with a scalar
-	// y = m * x 
-	std::transform(y.begin(), y.end(), y.begin(), std::bind1st(std::multiplies<T>(), m));
+	// y = y * m
+	std::transform(y.begin(), y.end(), y.begin(), [m](long long val){return val * m;});
 
 	// Source: https://stackoverflow.com/a/4461466
 	// y = y + c
-	std::transform(y.begin(), y.end(), y.begin(), std::bind2nd(std::plus<double>(), c));
+	std::transform(y.begin(), y.end(), y.begin(), [c](long long val){return val + c;});
 
 	// y = y + <random numbers>
 	// There are total 91 numbers
@@ -72,22 +71,20 @@ std::pair<std::vector<T>, std::vector<T>> create_data() {
 	std::vector<T> random_vector = random<T>(91, 2);
 	std::vector<T> vec_sum_y = add_two_vectors<T>(y, random_vector);
 
-	std::pair<std::vector<T>, std::vector<T>>input_output = make_pair(x, vec_sum_y);
-	return input_output;
+	return std::make_pair(x, vec_sum_y);
 }
 
 // Normalize Feature, Formula: (x - min)/(max - min)
 std::vector<float> normalize_feature(std::vector<float> feat) {
-	float max_element = *std::max_element(feat.begin(), feat.end());
-	float min_element = *std::min_element(feat.begin(), feat.end());
-	
-	for (int i = 0; i < feat.size(); i++) {
+	using ConstIter = std::vector<float>::const_iterator;
+	ConstIter max_element; //= *std::max_element(feat.begin(), feat.end());
+	ConstIter min_element; //= *std::min_element(feat.begin(), feat.end());
+    std::tie(min_element, max_element) = std::minmax_element(std::begin(feat), std::end(feat));
+
+	float extra = *max_element == *min_element ? 1.0 : 0.0;
+	for (auto& val: feat) {
 		// max_element - min_element + 1 to avoid divide by zero error
-		if(max_element == min_element) {
-			feat[i] = (feat[i] - min_element) / (max_element - min_element + 1);
-		} else {
-			feat[i] = (feat[i] - min_element) / (max_element - min_element);
-		}
+		val = (val - *min_element) / (*max_element - *min_element + extra);
 	}
 
 	return feat;
@@ -117,48 +114,31 @@ struct Net : torch::nn::Module {
 
 // This function processes data, Loads CSV file to vectors and normalizes features to (0, 1)
 // Assumes last column to be label and first row to be header (or name of the features)
-std::pair<std::vector<float>, std::vector<float>> process_data(std::ifstream&file, CSVRow& row) {
+std::pair<std::vector<float>, std::vector<float>> process_data(std::ifstream& file) {
 	std::vector<std::vector<float>> features;
 	std::vector<float> label;
-	int count = 0;
-   
+
+	CSVRow  row;
+    // Read and throw away the first row.
+    file >> row;
+
 	while (file >> row) {
-		// Assuming the first row is the name / header of the data set
-		if (count == 0) {
-			count += 1;
-			continue;
+		features.emplace_back();
+		for (std::size_t loop = 0;loop < row.size(); ++loop) {
+			features.back().emplace_back(row[loop]);
 		}
-		
-		for (int i = 0; i < row.size()-1; i++) {
-			if(count == 1) {
-				// First we initialize each feature vector with a value
-				std::vector<float> sample;
-				sample.push_back(row[i]);
-				features.push_back(sample);
-			}
-			else {
-				features[i].push_back(row[i]);
-			}
-		}
+		features.back() = normalize_feature(features.back());
 		
 		// Push final column to label vector
 		label.push_back(row[row.size()-1]);
-		count+= 1;
-	}
-
-	// Normalize Features to [0, 1]
-	for (int i = 0; i < features.size(); i++) {
-		features[i] = normalize_feature(features[i]);
 	}
 
 	// Flatten features vectors to 1D
 	std::vector<float> inputs = features[0];
-	int64_t total = 0;
-	for (int i = 1; i < features.size(); i++) {
-		total += features[i].size();
-	}
+	int64_t total = std::accumulate(std::begin(features) + 1, std::end(features), 0UL, [](std::size_t s, std::vector<float> const& v){return s + v.size();});
+
 	inputs.reserve(total);
-	for (int i = 1; i < features.size(); i++) {
+	for (std::size_t i = 1; i < features.size(); i++) {
 		inputs.insert(inputs.end(), features[i].begin(), features[i].end());
 	}
 	return std::make_pair(inputs, label);
