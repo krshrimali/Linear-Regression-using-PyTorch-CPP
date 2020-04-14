@@ -13,7 +13,7 @@ Follow these steps to implement LR on your CSV file:
 1. `git clone https://github.com/BuffetCodes/Linear-Regression-using-PyTorch-CPP.git`.
 2. `cd Linear-Regression-using-PyTorch-CPP`.
 3. `mkdir build/ && cd build/`.
-4. `cmake -DCMAKE_PREFIX_PATH=<absolute_path_to_libtorch>`.
+4. `cmake -DCMAKE_PREFIX_PATH=<absolute_path_to_libtorch> ..`
 5. `make`.
 6. `./bin/lr-example <path to your csv file>` (if you have a CSV file, else do: `./bin/lr-example` to use BostonHousing Data Set in extras folder)
 
